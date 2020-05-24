@@ -1,20 +1,17 @@
 /* 
-  Simple device driver for the UART.
-  Runs on LM3S811, LM3S1968, LM3S8962, LM4F120, TM4C123
+  - Simple device driver for the UART.
+  - Runs on LM3S811, LM3S1968, LM3S8962, LM4F120, TM4C123
 */
 
-// U0Rx (VCP receive) connected to PA0
-// U0Tx (VCP transmit) connected to PA1
 #include <stdint.h>
 #include "UART.h"
 #include "tm4c123gh6pm.h"
 
-
-#define UART_FR_TXFF            0x00000020  // UART Transmit FIFO Full
-#define UART_FR_RXFE            0x00000010  // UART Receive FIFO Empty
-#define UART_LCRH_WLEN_8        0x00000060  // 8 bit word length
-#define UART_LCRH_FEN           0x00000010  // UART Enable FIFOs
-#define UART_CTL_UARTEN         0x00000001  // UART Enable
+#define UART_FR_TXFF      0x00000020  // UART Transmit FIFO Full
+#define UART_FR_RXFE      0x00000010  // UART Receive FIFO Empty
+#define UART_LCRH_WLEN_8  0x00000060  // 8 bit word length
+#define UART_LCRH_FEN     0x00000010  // UART Enable FIFOs
+#define UART_CTL_UARTEN   0x00000001  // UART Enable
 
 
 /*
@@ -29,7 +26,7 @@ void UART_Init(void) {
   SYSCTL_RCGCUART_R |= 0x01;            // activate UART0
   SYSCTL_RCGCGPIO_R |= 0x01;            // activate port A
 
-  while((SYSCTL_PRGPIO_R & 0x01) == 0){}; //ready
+  while((SYSCTL_PRGPIO_R & 0x01) == 0) {}; //ready
   UART0_CTL_R &= ~UART_CTL_UARTEN;      // disable UART
   UART0_IBRD_R = 27;                    // IBRD = int(50,000,000 / (16 * 115,200)) = int(27.1267)
   UART0_FBRD_R = 8;                     // FBRD = int(0.1267 * 64 + 0.5) = 8
@@ -62,7 +59,7 @@ char UART_InChar(void) {
   - Input: letter is an 8-bit ASCII character to be transferred
   - Output: none
 */
-void UART_OutChar(char data){
+void UART_OutChar(char data) {
   while ((UART0_FR_R & UART_FR_TXFF) != 0);
   UART0_DR_R = data;
 }
@@ -73,9 +70,8 @@ void UART_OutChar(char data){
   - It will output a string to the serial port.
   - Output String (NULL termination)
   - Input: pointer to a NULL-terminated string to be transferred
-  - Output: none
 */
-void UART_OutString(char *pt){
+void UART_OutString(char *pt) {
   while (*pt) {
     UART_OutChar(*pt);
     pt++;
@@ -88,7 +84,6 @@ void UART_OutString(char *pt){
     valid range is 0 to 4294967295 (2^32-1).
   - If you enter a number above 4294967295, it will return an incorrect value.
   - Backspace will remove last digit typed.
-  - Input: none.
   - Output: 32-bit unsigned number.
 */
 uint32_t UART_InUDec(void) {
@@ -97,7 +92,7 @@ uint32_t UART_InUDec(void) {
   uint32_t length = 0;
   character = UART_InChar();
   
-  // accepts until <enter> is typed
+  // accepts until <enter> is typed.
   while (character != CR) { 
     // The next line checks that the input is a digit, 0-9, If the character is not 0-9,
     // it is ignored and not echoed
@@ -106,8 +101,8 @@ uint32_t UART_InUDec(void) {
       length++;
       UART_OutChar(character);
     } else if ((character == BS) && length) {  // If the input is a backspace, 
-      number /= 10;                            // then the return number is, changed and a backspace is outputted to th screen
-      length--;
+      number /= 10;                            // then the return number is, changed and a
+      length--;                                // backspace is outputted to th screen.
       UART_OutChar(character);
     }
     character = UART_InChar();
@@ -161,7 +156,8 @@ uint32_t UART_InUHex(void) {
       number = number * 0x10 + digit;
       length++;
       UART_OutChar(character);
-    } else if((character == BS) && length){  // Backspace outputted and return value changed if a backspace is inputted
+    } else if((character == BS) && length){  // Backspace outputted and return value changed
+                                             // if a backspace is inputted
       number /= 0x10;
       length--;
       UART_OutChar(character);
@@ -176,8 +172,7 @@ uint32_t UART_InUHex(void) {
   - uses recursion to convert the number of unspecified length as an ASCII string.
   - Output a 32-bit number in unsigned hexadecimal format.
   - Input: 32-bit number to be transferred.
-  - Output: none.
-  - Variable format 1 to 8 digits with no space before or after
+  - Variable format 1 to 8 digits with no space before or after.
 */
 void UART_OutUHex(uint32_t number){
   if( number >= 0x10) {

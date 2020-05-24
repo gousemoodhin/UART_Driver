@@ -1,9 +1,6 @@
 /* 
   Used to test the UART driver.
 */
-
-// U0Rx (VCP receive) connected to PA0.
-// U0Tx (VCP transmit) connected to PA1.
 #include <stdint.h>
 #include "PLL.h"
 #include "UART.h"
@@ -19,12 +16,12 @@ void OutCRLF(void) {
   UART_OutChar(LF);
 }
 
-int main(void){
+int main(void) {
   char ch;
   uint32_t n;
   char string[20];  // global to assist in debugging.
   
-  PLL_Init();  // 50 MHz.
+  PLL_Init();   // 50 MHz.
   UART_Init();  // initialize UART.
   OutCRLF();
 
@@ -34,7 +31,7 @@ int main(void){
   OutCRLF();
   UART_OutChar(' ');
 
-  for (ch = 'a'; ch <= 'z'; ch = ch + 1){// print the lowercase alphabet.
+  for (ch = 'a'; ch <= 'z'; ch = ch + 1){  // print the lowercase alphabet.
     UART_OutChar(ch);
   }
   OutCRLF();
